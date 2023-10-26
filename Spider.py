@@ -28,43 +28,46 @@ def get_data(baseurl):
         for item in soup.find_all('div', class_="item"):
             data = []
             item = str(item)
-            link = re.findall(findLink, item)[0]
+            link = re.findall(findLink, item)[0]  #获取电影链接
             data.append(link)
             img = re.findall(findImg, item)[0]  # 添加图片
             data.append(img)
-            title = re.findall(findTittle, item)
+            title = re.findall(findTittle, item) #获取电影名字
             if len(title) == 2:
                 cn_name = title[0]
                 data.append(cn_name)
                 us_name = title[1]
-                us_name = re.sub(r"\xa0|/", '',str(us_name))
+                us_name = re.sub(r"\xa0|/", '', str(us_name))
 
                 data.append(us_name)
-            else:
+            else:                           #处理第二个名字为空的情况
                 cn_name = title[0]
                 data.append(cn_name)
                 us_name = " "
                 data.append(us_name)
-            rate = re.findall(findRating, item)[0]
+            rate = re.findall(findRating, item)[0]  #获取评分
             data.append(rate)
-            num = re.findall(findNum, item)[0]
+            num = re.findall(findNum, item)[0]  #获取人气量
             data.append(num)
-            comment = re.findall(findComment, item)
-            if len(comment) != 0 :
-                comment = comment[0].replace("。",'')
+            comment = re.findall(findComment, item) #获取影评
+            if len(comment) != 0:
+                comment = comment[0].replace("。", '')
                 data.append(comment)
             else:
                 data.append(' ')
-            info = re.findall(findInfo, item)[0]
-            info = re.sub(r'<br(\s+)?/>(\s+)?',' ',str(info))
-            info = re.sub('/',' ',str(info))
-            info = re.sub(r"\xa0",' ',str(info))
+            info = re.findall(findInfo, item)[0]        #获取导演名字
+            info = re.sub(r'<br(\s+)?/>(\s+)?', ' ', str(info)) #处理空格
+            info = re.sub('/', ' ', str(info))      #处理斜杠
+            info = re.sub(r"\xa0", ' ', str(info))  #处理制表符
             data.append(info.strip())
             datalist.append(data)
 
-    #for item in datalist:
-        #print(item)
     return datalist
+
+
+'''
+    访问对应的网页
+'''
 
 
 def ask_url(url):
@@ -85,17 +88,17 @@ def ask_url(url):
     return html
 
 
-def save_data(save_path,datalist):
-    workbook = xlwt.Workbook("encoding=utf-8",style_compression=0)
-    worksheet = workbook.add_sheet("豆瓣电影top250",cell_overwrite_ok=True)
-    tittle = ('电影链接','图片链接','电影名字','英文名字','评分','人气','简介','演员列表')
-    for i in range(0,8):
+def save_data(save_path, datalist):
+    workbook = xlwt.Workbook("encoding=utf-8", style_compression=0)
+    worksheet = workbook.add_sheet("豆瓣电影top250", cell_overwrite_ok=True)
+    tittle = ('电影链接', '图片链接', '电影名字', '英文名字', '评分', '人气', '简介', '演员列表')
+    for i in range(0, 8):
         worksheet.write(0, i, tittle[i])
-    for i in range(0,250):
-        print(f'正在获取第{i+1}条')
+    for i in range(0, 250):
+        print(f'正在获取第{i + 1}条')
         data = datalist[i]
-        for j in range(0,8):
-            worksheet.write(i+1,j,data[j])
+        for j in range(0, 8):
+            worksheet.write(i + 1, j, data[j])
     workbook.save(save_path)
     print('------------->打印完毕')
 
@@ -105,4 +108,4 @@ if __name__ == '__main__':
     print('------------->开始爬取')
     save_path = '豆瓣电影top250.xls'
     datalist = get_data("https://movie.douban.com/top250?start=")
-    save_data(save_path,datalist)
+    save_data(save_path, datalist)
